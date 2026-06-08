@@ -151,7 +151,7 @@ function App() {
   return (
     <main className="chat-shell">
       <aside className="profile-panel">
-        <div className="profile-badge">AI Companion</div>
+     <div className="profile-badge">✨ AI Companion • By Bhuvan</div>
         <button
           type="button"
           className="new-chat-btn"
@@ -201,12 +201,12 @@ function App() {
             <h2>Chat with your personal AI</h2>
           </div>
           <div className="status-group">
-            <span className="mini-stat">Fast</span>
-            <span className="status-pill">Online</span>
+            {/* <span className="mini-stat">Fast</span> */}
+            <span className="status-pill">Free Model</span>
           </div>
         </header>
 
-        <div className="top-grid">
+        {/* <div className="top-grid">
           <article className="mini-card accent-card">
             <p>Today’s focus</p>
             <strong>Plan, write, and organize with clarity.</strong>
@@ -219,7 +219,7 @@ function App() {
             <p>Mode</p>
             <strong>Personal productivity assistant</strong>
           </article>
-        </div>
+        </div> */}
 
         <div className="messages">
           {messages.map((message) => (
