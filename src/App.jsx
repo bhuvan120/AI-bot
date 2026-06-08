@@ -15,27 +15,15 @@ const starterMessages = [
   },
 ]
 
-function generateReply(text) {
-  const lower = text.toLowerCase()
-
-  if (lower.includes('plan')) {
-    return 'Absolutely — I can help you turn your idea into a simple 3-step plan: define the goal, pick one first action, and review your progress at the end of the day.'
-  }
-
-  if (lower.includes('mood') || lower.includes('feel')) {
-    return 'I am here for a steady, supportive chat. If you want, I can help you reframe a tough moment into something manageable.'
-  }
-
-  if (lower.includes('summary') || lower.includes('sum')) {
-    return 'Sure — I can turn long notes into a short summary with the main takeaways, next steps, and a clear action item.'
-  }
-
-  return 'That sounds interesting. I can help you shape ideas, draft a response, or organize your next steps in a simple way.'
-}
-
 async function fetchBotReply(text, messages = []) {
   try {
+    // ✅ FIX 1: env check (this is your production issue)
     const apiKey = import.meta.env.VITE_GROQ_API_KEY
+
+    if (!apiKey) {
+      console.error('❌ Missing VITE_GROQ_API_KEY in production env')
+      return '⚠️ API key missing. Please configure environment variable VITE_GROQ_API_KEY.'
+    }
 
     const conversationHistory = messages.map((msg) => ({
       role: msg.role === 'bot' ? 'assistant' : 'user',
@@ -69,7 +57,7 @@ const x = 10;
 Use tables when comparing items.
 
 Keep responses clean, structured, and easy to read.
-`,
+            `,
           },
           ...conversationHistory,
           {
@@ -90,8 +78,10 @@ Keep responses clean, structured, and easy to read.
 
     return data.choices[0].message.content
   } catch (error) {
-    console.error('Groq API Error:', error)
-    return 'Sorry, I am unable to respond right now.'
+    console.error('❌ Groq API Error:', error?.response?.data || error.message)
+
+    // FIX 2: show real issue instead of silent fail
+    return 'Sorry, I am unable to respond right now. Check API key or network.'
   }
 }
 
@@ -105,35 +95,36 @@ function App() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [messages, typing])
 
+  // FIX 3: safe localStorage load
   useEffect(() => {
-  const saved = localStorage.getItem('chat-history')
+    const saved = localStorage.getItem('chat-history')
 
-  if (saved) {
-    setMessages(JSON.parse(saved))
-  }
-}, [])
+    if (saved) {
+      try {
+        setMessages(JSON.parse(saved))
+      } catch (e) {
+        console.error('Invalid chat history')
+      }
+    }
+  }, [])
 
-useEffect(() => {
-  localStorage.setItem(
-    'chat-history',
-    JSON.stringify(messages)
-  )
-}, [messages])
+  useEffect(() => {
+    localStorage.setItem('chat-history', JSON.stringify(messages))
+  }, [messages])
 
   const sendMessage = async (value) => {
     const text = value.trim()
     if (!text) return
 
     const userMessage = { id: Date.now(), role: 'user', text }
+
     setMessages((prev) => [...prev, userMessage])
     setInput('')
     setTyping(true)
 
     try {
-      const reply = await fetchBotReply(
-        text,
-        [...messages, userMessage]
-      )
+      const reply = await fetchBotReply(text, [...messages, userMessage])
+
       setMessages((prev) => [
         ...prev,
         { id: Date.now() + 1, role: 'bot', text: reply },
@@ -267,6 +258,7 @@ useEffect(() => {
               )}
             </article>
           ))}
+
           {typing ? <p className="typing">Assistant is thinking…</p> : null}
           <div ref={messagesEndRef} />
         </div>
@@ -286,4 +278,4 @@ useEffect(() => {
   )
 }
 
-export default App  
+export default App
