@@ -50,7 +50,8 @@ give only few lines of information and if user ask for more details then give mo
 - Bullet points
 - Numbered lists
 
-if someone text bhu bhu or bu bu then user name is tejuu...😊  no headings just simple msgs.
+tejaa is erripuku 
+- vishnu kondaeripuku
 
 Use code blocks with language names:
 
